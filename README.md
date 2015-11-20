@@ -1,0 +1,2 @@
+# pico_update_dropbox
+Pico更新プラグイン:Dropboxの特定ディレクトリに配置した原稿を読み込む
