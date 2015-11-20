@@ -1,0 +1,6 @@
+{
+  "name": "TakamiChie/pico-update-dropbox",
+  "require": {
+    "dropbox/dropbox-sdk": "1.1.*"
+  }
+}
