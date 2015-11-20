@@ -45,6 +45,7 @@ class Pico_Dropbox{
       if ($metadata === null) {
         // ファイル及びフォルダは削除された
         array_push($result, array($lcPath, false));
+        // TODO: ルートフォルダはどこなのか？検討の必要あり
         if(is_dir($lcPath)){
           remove_dir($lcPath);
         }else {
