@@ -91,7 +91,11 @@ class Pico_Dropbox{
           }
         }else{
           $fp = fopen($ppath, "wb");
-          $res = $dropbox->getFile($metadata["path"], $fp);
+          try{
+            $res = $this->dropbox->getFile($metadata["path"], $fp);
+          }catch(Exception $e){
+            throw new Exception("File Loading Error Please Download This ${metadata['path']}", 0, $e);
+          }
           fclose($fp);
         }
       }
