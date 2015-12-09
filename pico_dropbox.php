@@ -47,7 +47,11 @@ class Pico_Dropbox{
     return array("success" => $success, "message" => $message);
   }
 
-  private function loadOfDelta(string $cursor){
+  public function get_update_files(){
+    return $this->files;
+  }
+
+  private function loadOfDelta(string $cursor = null){
     $content_dir = $this->pico_config["content_dir"];
     // TODO: result仕様の再検討
     $filelist = array();
@@ -68,6 +72,7 @@ class Pico_Dropbox{
       }
       if ($metadata === null) {
         // ファイル及びフォルダは削除された
+        array_push($filelist, array($ppath, FALSE)); // result配列に項目を追加
         if(file_exists($ppath)){
           if(is_dir($ppath)){
             $this->remove_dirs($ppath);
@@ -77,7 +82,7 @@ class Pico_Dropbox{
         }
       } else {
         // ファイル及びフォルダは追加or更新された
-        array_push($filelist, $ppath); // result配列に項目を追加
+        array_push($filelist, array($ppath, TRUE)); // result配列に項目を追加
         if($metadata["is_dir"]){
           mkdir($ppath);
         }else{
