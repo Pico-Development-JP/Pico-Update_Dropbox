@@ -6,6 +6,8 @@ class Pico_Dropbox{
 
   private $setting;
 
+  private $files;
+  
   private $pico_config;
 
   function __construct(){
