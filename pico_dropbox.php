@@ -26,18 +26,25 @@ class Pico_Dropbox{
     require_once(__DIR__ . '/vendor/autoload.php');
     $this->setting = array();
     $this->pico_config = $config;
+    $success = FALSE;
     if(file_exists(FILE_SETTING)){
       $this->setting = json_decode(file_get_contents(FILE_SETTING), TRUE);
     }
     $token = $config["dropbox"]["access_token"];
-    $this->dropbox = new \Dropbox\Client($token, USER_AGENT);
-    $cursor = !empty($this->setting["cursor"]) ? $this->setting["cursor"] : null;
+    try{
+      $this->dropbox = new \Dropbox\Client($token, USER_AGENT);
+      $cursor = !empty($this->setting["cursor"]) ? $this->setting["cursor"] : null;
 
-    list($cursor, $files) = $this->loadOfDelta($cursor);
-    $this->setting["cursor"] = $cursor;
-    file_put_contents(FILE_SETTING, json_encode($this->setting));
-    // TODO: 出力されたファイルリストの処理実装
-    return array("success" => !empty($message), "message" => ””);
+      list($cursor, $files) = $this->loadOfDelta($cursor);
+      $this->setting["cursor"] = $cursor;
+      $this->files = $files;
+      file_put_contents(FILE_SETTING, json_encode($this->setting));
+      $message = "Update Success\n";
+      $success = TRUE;
+    }catch(Exception $e){
+      $message = $e->getMessage();
+    }
+    return array("success" => $success, "message" => $message);
   }
 
   private function loadOfDelta(string $cursor){
