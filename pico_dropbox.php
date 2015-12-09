@@ -84,7 +84,9 @@ class Pico_Dropbox{
         // ファイル及びフォルダは追加or更新された
         array_push($filelist, array($ppath, TRUE)); // result配列に項目を追加
         if($metadata["is_dir"]){
-          mkdir($ppath);
+          if(!file_exists($ppath)){
+            mkdir($ppath);
+          }
         }else{
           $fp = fopen($ppath, "wb");
           $res = $dropbox->getFile($metadata["path"], $fp);
