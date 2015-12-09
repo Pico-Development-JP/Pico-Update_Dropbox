@@ -27,7 +27,7 @@ class Pico_Dropbox{
     $this->setting = array();
     $this->pico_config = $config;
     if(file_exists(FILE_SETTING)){
-      $this->setting = json_decode(file_get_contents(FILE_SETTING));
+      $this->setting = json_decode(file_get_contents(FILE_SETTING), TRUE);
     }
     $token = $config["dropbox"]["access_token"];
     $this->dropbox = new \Dropbox\Client($token, USER_AGENT);
