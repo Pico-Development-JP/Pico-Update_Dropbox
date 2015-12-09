@@ -52,7 +52,7 @@ class Pico_Dropbox{
     // TODO: result仕様の再検討
     $filelist = array();
     // Delta 読み込み
-    $deltaPage = $dropbox->getDelta($cursor);
+    $deltaPage = $this->dropbox->getDelta($cursor);
     // entries以外の処理
     // TODO: リセット処理の実装
     // entries処理
