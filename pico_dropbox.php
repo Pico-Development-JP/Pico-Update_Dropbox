@@ -8,9 +8,9 @@ class Pico_Dropbox{
 
   private $pico_config;
 
-  public __construct(){
+  function __construct(){
     define("USER_AGENT", "Pico Updater");
-    define("FILE_SETTING", LOG_DIR . "dropbox.conf")
+    define("FILE_SETTING", LOG_DIR . "dropbox.conf");
     define("DB_CONTENT_DIR", "contents");
   }
 
@@ -48,9 +48,9 @@ class Pico_Dropbox{
     foreach ($deltaPage["entries"] as $entry) {
       list($lcPath, $metadata) = $entry;
       // ルートフォルダチェック
-      if($this->startsWith($lcPath, "/" . DB_CONTENT_DIR){
+      if($this->startsWith($lcPath, "/" . DB_CONTENT_DIR)){
         // コンテントファイル
-        $ppath = ROOT_DIR . "/" str_replace(DB_CONTENT_DIR, $content_dir, $lcPath);
+        $ppath = ROOT_DIR . "/" . str_replace(DB_CONTENT_DIR, $content_dir, $lcPath);
       }else{
         // 未定義フォルダのファイルは無視
         continue;
