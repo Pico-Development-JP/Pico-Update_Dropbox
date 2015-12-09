@@ -15,7 +15,11 @@ class Pico_Dropbox{
   }
 
   public function precheck(){
-    return htmlspecialchars($_GET['challenge']);
+    $ret = "";
+    if(isset($_GET['challenge'])){
+      $ret = htmlspecialchars($_GET['challenge']);
+    }
+    return $ret;
   }
 
   public function run($config){
