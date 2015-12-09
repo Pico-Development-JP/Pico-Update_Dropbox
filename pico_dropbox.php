@@ -23,7 +23,7 @@ class Pico_Dropbox{
   }
 
   public function run($config){
-    require_once('vendor/autoload.php');
+    require_once(__DIR__ . '/vendor/autoload.php');
     $this->setting = array();
     $this->pico_config = $config;
     if(file_exists(FILE_SETTING)){
