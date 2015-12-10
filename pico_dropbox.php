@@ -53,7 +53,7 @@ class Pico_Dropbox{
     return $this->files;
   }
 
-  private function loadOfDelta(string $cursor = null){
+  private function loadOfDelta($cursor){
     $content_dir = $this->pico_config["content_dir"];
     // TODO: result仕様の再検討
     $filelist = array();
