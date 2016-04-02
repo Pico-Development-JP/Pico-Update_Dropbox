@@ -69,6 +69,7 @@ class Pico_Dropbox{
   private function loadOfDelta($cursor){
     $rootdir = ROOT_DIR;
     $content_dir = $this->pico_config["content_dir"];
+    $dbuploadconfig = $this->pico_config["dropbox"]["uploadconfig"];
     // TODO: result仕様の再検討
     $filelist = array();
     // Delta 読み込み
@@ -77,16 +78,23 @@ class Pico_Dropbox{
     // TODO: リセット処理の実装
     // entries処理
     foreach ($deltaPage["entries"] as $entry) {
+      $dirtype = "";
       list($lcPath, $metadata) = $entry;
       // ルートフォルダチェック
       if($this->startsWith($lcPath, "/" . DB_CONTENT_DIR)){
         // コンテントファイル
         $ppath = str_replace("/" . DB_CONTENT_DIR . "/", $content_dir, $lcPath);
+        $dirtype = DB_CONTENT_DIR;
+      }elseif($this->startsWith($lcPath, "/" . DB_CONFIG_DIR) && $dbuploadconfig){
+        // コンフィグファイル
+        $cfg = DB_CONFIG_DIR;
+        $ppath = "$rootdir/$cfg/$cfg.php";
+        $dirtype = DB_CONFIG_DIR;
       }else{
         // 未定義フォルダのファイルは無視
         continue;
       }
-      if ($metadata === null) {
+      if ($metadata === null && $dirtype != DB_CONFIG_DIR) {
         // ファイル及びフォルダは削除された
         array_push($filelist, array($ppath, FALSE)); // result配列に項目を追加
         if(file_exists($ppath)){
@@ -96,7 +104,7 @@ class Pico_Dropbox{
             unlink($ppath);
           }
         }
-      } else {
+      } elseif($metadata !== null) {
         // ファイル及びフォルダは追加or更新された
         array_push($filelist, array($ppath, TRUE)); // result配列に項目を追加
         if($metadata["is_dir"]){
