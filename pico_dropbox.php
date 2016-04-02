@@ -12,8 +12,9 @@ class Pico_Dropbox{
 
   function __construct(){
     define("USER_AGENT", "Pico Updater");
-    define("FILE_SETTING", LOG_DIR . "dropbox.conf");
-    define("DB_CONTENT_DIR", "contents");
+    define("FILE_CURSOR", LOG_DIR . "dropbox-cursor.conf");
+    define("DB_CONFIG_DIR", "config");
+    define("DB_CONTENT_DIR", "content");
   }
 
   public function precheck(){
@@ -29,22 +30,34 @@ class Pico_Dropbox{
     $this->setting = array();
     $this->pico_config = $config;
     $success = FALSE;
-    if(file_exists(FILE_SETTING)){
-      $this->setting = json_decode(file_get_contents(FILE_SETTING), TRUE);
-    }
-    $token = $config["dropbox"]["access_token"];
-    try{
-      $this->dropbox = new \Dropbox\Client($token, USER_AGENT);
-      $cursor = !empty($this->setting["cursor"]) ? $this->setting["cursor"] : null;
-
-      list($cursor, $files) = $this->loadOfDelta($cursor);
-      $this->setting["cursor"] = $cursor;
-      $this->files = $files;
-      file_put_contents(FILE_SETTING, json_encode($this->setting));
-      $message = "Update Success\n";
-      $success = TRUE;
-    }catch(Exception $e){
-      $message = $e->getMessage();
+    $fp = fopen(FILE_CURSOR, "c+");
+    if(flock($fp, LOCK_EX)){
+      $fp = fopen(FILE_CURSOR, "c+");
+      $token = $config["dropbox"]["access_token"];
+      try{
+        $this->dropbox = new \Dropbox\Client($token, USER_AGENT);
+        $c = null;
+        $cursor = array();
+        if(filesize(FILE_CURSOR) > 0){
+          $cursor = json_decode(fread($fp, filesize(FILE_CURSOR)), TRUE);
+          if(!empty($cursor["cursor"])){
+            $c = $cursor["cursor"];
+          }
+        }
+          
+        list($c, $files) = $this->loadOfDelta($c);
+        $cursor["cursor"] = $c;
+        // 書き込み
+        ftruncate($fp, 0);
+        fseek($fp, 0);
+        fwrite($fp, json_encode($cursor));
+        $message = "Update Success\n";
+        $this->files = $files;
+        $success = TRUE;
+        fclose($fp);
+      }catch(Exception $e){
+        $message = $e->getMessage();
+      }
     }
     return array("success" => $success, "message" => $message);
   }
@@ -54,6 +67,7 @@ class Pico_Dropbox{
   }
 
   private function loadOfDelta($cursor){
+    $rootdir = ROOT_DIR;
     $content_dir = $this->pico_config["content_dir"];
     // TODO: result仕様の再検討
     $filelist = array();
@@ -67,7 +81,7 @@ class Pico_Dropbox{
       // ルートフォルダチェック
       if($this->startsWith($lcPath, "/" . DB_CONTENT_DIR)){
         // コンテントファイル
-        $ppath = ROOT_DIR . "/" . str_replace(DB_CONTENT_DIR, $content_dir, $lcPath);
+        $ppath = str_replace("/" . DB_CONTENT_DIR . "/", $content_dir, $lcPath);
       }else{
         // 未定義フォルダのファイルは無視
         continue;
@@ -113,24 +127,27 @@ class Pico_Dropbox{
 
   /**
    * ディレクトリを再帰的に削除する
+   * http://d.hatena.ne.jp/kusakari/20070727/1185467927
    * @param string $dir ディレクトリ
    */
-  public function remove_dirs(string $dir){
-    if(is_dir($dir)){
-      $list = scandir($dir);
-      foreach ($list as $file) {
-        if($file == "." || $file == ".."){
-          continue;
-        }
-        $f = $dir . "/" . $file;
-        if($is_dir($f)){
-          $this->remove_dirs($f);
-        }else{
-          unlink($f);
-        }
-        rmdir($dir);
-      }
+  private function remove_dirs($dir){
+    if (!file_exists($dir)) {
+      return;
     }
+    $dhandle = opendir($dir);
+    if ($dhandle) {
+      while (false !== ($fname = readdir($dhandle))) {
+        if (is_dir( "{$dir}/{$fname}" )) {
+            if (($fname != '.') && ($fname != '..')) {
+              $this->remove_dirs("$dir/$fname");
+            }
+        } else {
+            unlink("{$dir}/{$fname}");
+        }
+      }
+      closedir($dhandle);
+    }
+    rmdir($dir);
   }
 
   /**
@@ -141,9 +158,10 @@ class Pico_Dropbox{
   * @param string $needle
   * @return TRUE = needleで始まる / FALSE = needleで始まらない
   */
-  public function startsWith($haystack, $needle){
+  private function startsWith($haystack, $needle){
     return strpos($haystack, $needle, 0) === 0;
   }
+
 }
 
 ?>
