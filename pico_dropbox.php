@@ -66,6 +66,7 @@ class Pico_Dropbox{
 
   private function loadOfDelta($cursor){
     $pico = $this->pico;
+    $cn = get_class();
     $rootdir = ROOT_DIR;
     $content_dir = $pico->getConfig("content_dir");
     $dbuploadconfig = $pico->getConfig("dropbox")["uploadconfig"];
@@ -97,6 +98,7 @@ class Pico_Dropbox{
         // ファイル及びフォルダは削除された
         array_push($filelist, array($ppath, FALSE)); // result配列に項目を追加
         if(file_exists($ppath)){
+          $pico->sendWebhook("- $ppath", $cn, ":small_red_triangle_down:");
           if(is_dir($ppath)){
             $this->remove_dirs($ppath);
           }else {
@@ -106,6 +108,7 @@ class Pico_Dropbox{
       } elseif($metadata !== null) {
         // ファイル及びフォルダは追加or更新された
         array_push($filelist, array($ppath, TRUE)); // result配列に項目を追加
+        $pico->sendWebhook("+ $ppath", $cn, ":small_red_triangle:");
         if($metadata["is_dir"]){
           if(!file_exists($ppath)){
             mkdir($ppath);
