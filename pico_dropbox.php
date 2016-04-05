@@ -4,13 +4,12 @@ class Pico_Dropbox{
 
   private $dropbox;
 
-  private $setting;
-
   private $files;
   
-  private $pico_config;
+  private $pico;
 
-  function __construct(){
+  function __construct($owner){
+    $this->pico = $owner;
     define("USER_AGENT", "Pico Updater");
     define("FILE_CURSOR", LOG_DIR . "dropbox-cursor.conf");
     define("DB_CONFIG_DIR", "config");
@@ -25,15 +24,14 @@ class Pico_Dropbox{
     return $ret;
   }
 
-  public function run($config){
+  public function run(){
     require_once(__DIR__ . '/vendor/autoload.php');
-    $this->setting = array();
-    $this->pico_config = $config;
+    $pico = $this->pico;
     $success = FALSE;
     $fp = fopen(FILE_CURSOR, "c+");
     if(flock($fp, LOCK_EX)){
       $fp = fopen(FILE_CURSOR, "c+");
-      $token = $config["dropbox"]["access_token"];
+      $token = $pico->getConfig("dropbox")["access_token"];
       try{
         $this->dropbox = new \Dropbox\Client($token, USER_AGENT);
         $c = null;
@@ -67,9 +65,10 @@ class Pico_Dropbox{
   }
 
   private function loadOfDelta($cursor){
+    $pico = $this->pico;
     $rootdir = ROOT_DIR;
-    $content_dir = $this->pico_config["content_dir"];
-    $dbuploadconfig = $this->pico_config["dropbox"]["uploadconfig"];
+    $content_dir = $pico->getConfig("content_dir");
+    $dbuploadconfig = $pico->getConfig("dropbox")["uploadconfig"];
     // TODO: result仕様の再検討
     $filelist = array();
     // Delta 読み込み
