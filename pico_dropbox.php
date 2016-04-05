@@ -28,6 +28,7 @@ class Pico_Dropbox{
     require_once(__DIR__ . '/vendor/autoload.php');
     $pico = $this->pico;
     $success = FALSE;
+    $message = "";
     $fp = fopen(FILE_CURSOR, "c+");
     if(flock($fp, LOCK_EX)){
       $fp = fopen(FILE_CURSOR, "c+");
@@ -49,7 +50,9 @@ class Pico_Dropbox{
         ftruncate($fp, 0);
         fseek($fp, 0);
         fwrite($fp, json_encode($cursor));
-        $message = "Update Success\n";
+        if(!empty($files)){
+          $message = "Update Success\n";
+        }
         $this->files = $files;
         $success = TRUE;
         fclose($fp);
