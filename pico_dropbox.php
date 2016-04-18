@@ -73,6 +73,7 @@ class Pico_Dropbox{
     $rootdir = ROOT_DIR;
     $content_dir = $pico->getConfig("content_dir");
     $dbuploadconfig = $pico->getConfig("dropbox")["uploadconfig"];
+    $dbupdir = strtolower($pico->getConfig('dropbox')['rootdir']);
     // TODO: result仕様の再検討
     $filelist = array();
     // Delta 読み込み
@@ -84,6 +85,18 @@ class Pico_Dropbox{
       $dirtype = "";
       list($lcPath, $metadata) = $entry;
       // ルートフォルダチェック
+      if($this->startsWith(strtolower($lcPath), $dbupdir)){
+        $lcPath = substr($lcPath, strlen($dbupdir));
+        if(!$this->startsWith($lcPath, "/"))
+        {
+          $lcPath = "/" . $lcPath;
+        }
+      }else{
+        // ルートフォルダにはない
+        continue;
+      }
+      
+      // フォルダ切り分け
       if($this->startsWith($lcPath, "/" . DB_CONTENT_DIR)){
         // コンテントファイル
         $ppath = str_replace("/" . DB_CONTENT_DIR . "/", $content_dir, $lcPath);
