@@ -13,7 +13,7 @@ Pico更新プラグイン:Dropboxの特定ディレクトリに配置した原�
 
 以上で準備は完了です。`$config["content_dir"]`で指定したフォルダに自動的にコンテンツをアップロードします。`content_dir`がない場合は「content」または「content-sample」ディレクトリが使用されます。
 
-# Dropboxアプリ用フォルダの校正
+# Dropboxアプリ用フォルダの構成
 
 Dropboxのアプリフォルダには、以下の構成でファイルを保存できます。
 
