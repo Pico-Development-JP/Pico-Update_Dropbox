@@ -85,7 +85,7 @@ class Pico_Dropbox{
       $dirtype = "";
       list($lcPath, $metadata) = $entry;
       // ルートフォルダチェック
-      if($this->startsWith(strtolower($lcPath), $dbupdir)){
+      if($dbupdir == "" || $this->startsWith(strtolower($lcPath), $dbupdir)){
         $lcPath = substr($lcPath, strlen($dbupdir));
         if(!$this->startsWith($lcPath, "/"))
         {
