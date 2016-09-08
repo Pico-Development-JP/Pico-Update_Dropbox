@@ -20,6 +20,9 @@ class Pico_Dropbox{
     $ret = "";
     if(isset($_GET['challenge'])){
       $ret = htmlspecialchars($_GET['challenge']);
+    }elseif(strpos($_SERVER["HTTP_USER_AGENT"], "DropboxWebhooks") !== false){
+      // DropboxWebhooksがアクセスしたときには値を返さない(値を返すとエラーとみなされる)
+      $ret = NULL;
     }
     return $ret;
   }
